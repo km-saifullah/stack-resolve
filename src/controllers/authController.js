@@ -1,5 +1,7 @@
 import apiResponse from 'quick-response'
 import User from '../models/userModel.js'
+import jwt from 'jsonwebtoken'
+import { tokenSecret } from '../config/index.js'
 
 // @desc: login user
 // route: POST /api/v1/users/login
@@ -32,4 +34,34 @@ const loginUser = async (req, res) => {
   }
 }
 
-export { loginUser }
+// @desc: is user looggedin to the system
+const isUserLoggedIn = async (req, res, next) => {
+  try {
+    let token
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1]
+    }
+
+    if (!token) {
+      return next(apiResponse(401, 'please login first'))
+    }
+
+    // verify token
+    const decoded = jwt.verify(token, tokenSecret)
+
+    const currentUser = await User.findById(decoded.id)
+    if (!currentUser) {
+      return res.status(401, 'user does not found with this token')
+    }
+
+    req.user = currentUser
+    next()
+  } catch (error) {
+    return res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+export { loginUser, isUserLoggedIn }
