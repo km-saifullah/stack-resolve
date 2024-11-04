@@ -8,6 +8,13 @@ const addProblem = async (req, res) => {
     const { title, description, tags } = req.body
     let images = req.files
 
+    const tagsArray = tags.split(',')
+    if (tagsArray.length > 5) {
+      return res
+        .status(400)
+        .json(apiResponse(400, 'maximum 5 tags are allowed'))
+    }
+
     if (
       (!title || title === '') &&
       (!description || description === '') &&
@@ -19,7 +26,6 @@ const addProblem = async (req, res) => {
     const problem = new Problem()
 
     for (let problemImage of images) {
-      console.log(problemImage.filename)
       problem.image.push({
         problemScreenshot: problemImage.path,
       })
@@ -27,7 +33,7 @@ const addProblem = async (req, res) => {
 
     problem.title = title
     problem.description = description
-    problem.tags = tags
+    problem.tags = tagsArray
     await problem.save()
 
     return res.status(201).json(apiResponse(201, 'problem created', problem))
