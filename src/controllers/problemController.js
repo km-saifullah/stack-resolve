@@ -53,4 +53,19 @@ const getAllProblems = async (req, res) => {
   }
 }
 
-export { addProblem, getAllProblems }
+// @desc:  get a problem
+// @route: GET /api/v1/problems/:id
+const getProblem = async (req, res) => {
+  try {
+    const { id } = req.params
+    const problem = await Problem.findById({ _id: id })
+    if (!problem) {
+      return res.status(404).json(apiResponse(404, 'problem does not found'))
+    }
+    return res.status(200).json(apiResponse(200, 'problem fetched', problem))
+  } catch (error) {
+    return res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+export { addProblem, getAllProblems, getProblem }
