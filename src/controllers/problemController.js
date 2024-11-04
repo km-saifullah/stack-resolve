@@ -12,16 +12,10 @@ const __dirname = path.dirname(__filename)
 // @route: POST /api/v1/problems
 const addProblem = async (req, res) => {
   try {
-    const { title, description, tags } = req.body
-    let images = req.files
+    const { title, description, tags, postedBy } = req.body
+    const images = req.files
 
-    const tagsArray = tags.split(',')
-    if (tagsArray.length > 5) {
-      return res
-        .status(400)
-        .json(apiResponse(400, 'maximum 5 tags are allowed'))
-    }
-
+    // check for required fields
     if (
       (!title || title === '') &&
       (!description || description === '') &&
@@ -30,17 +24,37 @@ const addProblem = async (req, res) => {
       return res.status(400).json(apiResponse(400, 'enter required fields'))
     }
 
-    const problem = new Problem()
-
-    for (let problemImage of images) {
-      problem.image.push({
-        problemScreenshot: problemImage.path,
-      })
+    // limit tags to a maximum of 5
+    const tagsArray = tags.split(',')
+    if (tagsArray.length > 5) {
+      return res
+        .status(400)
+        .json(apiResponse(400, 'maximum 5 tags are allowed'))
     }
 
-    problem.title = title
-    problem.description = description
-    problem.tags = tagsArray
+    // check the image upload limit
+    if (images.length > 4) {
+      // delete the temporarily uploaded files
+      for (let file of images) {
+        fs.unlink(file.path, (err) => {
+          if (err)
+            console.error(`Error deleting file ${file.path}: ${err.message}`)
+        })
+      }
+      return res
+        .status(400)
+        .json(apiResponse(400, 'maximum 4 images are allowed'))
+    }
+
+    // create a new problem instance
+    const problem = new Problem({
+      title,
+      description,
+      tags: tagsArray,
+      postedBy,
+      image: images.map((img) => ({ problemScreenshot: img.path })),
+    })
+
     await problem.save()
 
     return res.status(201).json(apiResponse(201, 'problem created', problem))
@@ -53,7 +67,7 @@ const addProblem = async (req, res) => {
 // @route: GET /api/v1/problems
 const getAllProblems = async (req, res) => {
   try {
-    const problems = await Problem.find({})
+    const problems = await Problem.find({}).populate('postedBy')
 
     return res.status(200).json({
       status: 'success',
@@ -71,7 +85,7 @@ const getAllProblems = async (req, res) => {
 const getProblem = async (req, res) => {
   try {
     const { id } = req.params
-    const problem = await Problem.findById({ _id: id })
+    const problem = await Problem.findById({ _id: id }).populate('postedBy')
     if (!problem) {
       return res.status(404).json(apiResponse(404, 'problem does not found'))
     }

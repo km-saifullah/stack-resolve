@@ -13,7 +13,7 @@ const router = Router()
 // create a problem
 router
   .route('/')
-  .post(isUserLoggedIn, upload.array('image', 5), addProblem)
+  .post(isUserLoggedIn, upload.array('image', 4), addProblem)
   .get(getAllProblems)
 
 router.route('/:id').get(getProblem).delete(isUserLoggedIn, deleteProblem)
