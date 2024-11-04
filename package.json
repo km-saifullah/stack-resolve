@@ -17,6 +17,7 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.2",
+    "multer": "^1.4.5-lts.1",
     "quick-app": "^2.0.3",
     "quick-response": "^1.0.5"
   }

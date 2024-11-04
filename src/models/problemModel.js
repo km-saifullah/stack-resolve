@@ -19,13 +19,14 @@ const problemSchema = new Schema(
         },
       },
     ],
-    tags: {
-      type: String,
-      required: true,
-      enum: ['backend', 'frontend', 'mobiledev', 'devops'],
-      max: 4,
-      min: 1,
-    },
+    tags: [
+      {
+        type: String,
+        required: true,
+        max: 4,
+        min: 1,
+      },
+    ],
     isSolved: {
       type: Boolean,
       default: false,

@@ -6,6 +6,7 @@ const app = express()
 
 // middlewares
 app.use(express.json())
+app.use('/public', express.static('public'))
 app.use(express.urlencoded({ extended: true }))
 
 // problem route
