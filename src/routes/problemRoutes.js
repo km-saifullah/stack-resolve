@@ -1,5 +1,10 @@
 import { Router } from 'express'
-import { addProblem, getAllProblems, getProblem } from '../controllers/problemController.js'
+import {
+  addProblem,
+  deleteProblem,
+  getAllProblems,
+  getProblem,
+} from '../controllers/problemController.js'
 import { isUserLoggedIn } from '../controllers/authController.js'
 import upload from '../middlewares/uploadImage.js'
 
@@ -11,5 +16,5 @@ router
   .post(isUserLoggedIn, upload.array('image', 5), addProblem)
   .get(getAllProblems)
 
-  router.route('/:id').get(getProblem)
+router.route('/:id').get(getProblem).delete(isUserLoggedIn, deleteProblem)
 export default router
