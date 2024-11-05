@@ -41,4 +41,40 @@ const getAllComments = async (req, res) => {
   }
 }
 
-export { createComment, getAllComments }
+// @desc:  like a comment
+// @route: PATCH /api/v1/comments/like
+const likeComment = async (req, res) => {
+  try {
+    const { id } = req.body
+    const comment = await Comment.findByIdAndUpdate(
+      id,
+      { $inc: { like: 1 } },
+      { new: true }
+    )
+    return res.status(200).json(apiResponse(200, 'like added', comment))
+  } catch (error) {
+    return res
+      .status(400)
+      .json(apiResponse(400, 'server error', { error: error.message }))
+  }
+}
+
+// @desc:  dislike a comment
+// @route: PATCH /api/v1/comments/dislike
+const dislikeComment = async (req, res) => {
+  try {
+    const { id } = req.body
+    const comment = await Comment.findByIdAndUpdate(
+      id,
+      { $inc: { dislike: 1 } },
+      { new: true }
+    )
+    return res.status(200).json(apiResponse(200, 'dislike added', comment))
+  } catch (error) {
+    return res
+      .status(400)
+      .json(apiResponse(400, 'server error', { error: error.message }))
+  }
+}
+
+export { createComment, getAllComments, likeComment, dislikeComment }
