@@ -77,4 +77,24 @@ const dislikeComment = async (req, res) => {
   }
 }
 
-export { createComment, getAllComments, likeComment, dislikeComment }
+// @desc:  delete a comment
+// @route: DELETE /api/v1/comments/:id
+const deleteComment = async (req, res) => {
+  try {
+    const { id } = req.body
+    await Comment.findByIdAndDelete({ _id: id })
+    return res.status(200).json(apiResponse(200, 'comment deleted'))
+  } catch (error) {
+    return res
+      .status(400)
+      .json(apiResponse(400, 'server error', { error: error.message }))
+  }
+}
+
+export {
+  createComment,
+  getAllComments,
+  likeComment,
+  dislikeComment,
+  deleteComment,
+}
