@@ -3,14 +3,19 @@ import User from '../models/userModel.js'
 
 const createUser = async (req, res) => {
   try {
-    const { displayName, email, password } = req.body
+    const { displayName, email, password, role } = req.body
 
     const user = await User.findOne({ email })
     if (user) {
       return res.status(400).json(apiResponse(400, 'user already exist'))
     }
 
-    const newUser = await User.create({ displayName, email, password })
+    const newUser = await User.create({
+      displayName,
+      email,
+      password,
+      role: role ? role : 'user',
+    })
 
     return res
       .status(201)
