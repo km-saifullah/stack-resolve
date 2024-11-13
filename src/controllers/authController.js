@@ -28,6 +28,9 @@ const loginUser = async (req, res) => {
     // generate jwt token
     const token = await userFound.generateToken()
 
+    userFound.token = token
+    await userFound.save()
+
     return res.status(200).json(apiResponse(200, 'login successful', { token }))
   } catch (error) {
     return res.status(400).json({ status: 'fail', message: error.message })
@@ -64,4 +67,26 @@ const isUserLoggedIn = async (req, res, next) => {
   }
 }
 
-export { loginUser, isUserLoggedIn }
+// @desc:   logout user
+// @route : POST /api/v1/logout
+const logoutUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+
+    if (!user || !user.token) {
+      return res
+        .status(400)
+        .json(apiResponse(400, 'you are not logged in, please login first'))
+    }
+
+    user.token = undefined
+    await user.save()
+    return res.status(200).json(apiResponse(200, 'logout successful'))
+  } catch (error) {
+    return res
+      .status(400)
+      .json(apiResponse(400, 'logout error', { error: error.message }))
+  }
+}
+
+export { loginUser, isUserLoggedIn, logoutUser }
